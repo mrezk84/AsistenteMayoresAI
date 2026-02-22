@@ -46,7 +46,7 @@
    **Environment Variables:**
    | Name | Value |
    |------|-------|
-   | `OPENAI_API_KEY` | `tu_clave_de_openai_aqui` |
+   | `ANTHROPIC_API_KEY` | `tu_clave_de_anthropic_aqui` |
    | `PYTHON_VERSION` | `3.11.7` |
 
 5. Hacer clic en **"Create Web Service"**
@@ -108,7 +108,7 @@ Debe retornar: `{"status":"healthy","service":"Asistente Mayores API"}`
 
 ### Error: "OpenAI API key not found"
 
-- Agregar `OPENAI_API_KEY` en Render
+- Agregar `ANTHROPIC_API_KEY` en Render
 - Recrear el servicio si la variable fue agregada después
 
 ## Alternativa: Otros Proveedores
