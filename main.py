@@ -300,61 +300,72 @@ def get_user_pdfs(user_id: int, db: Session = Depends(get_db)):
 
 
 # ============================================
-# Nueva función de chat con historial
+# Nueva función de chat con historial (usando Claude)
 # ============================================
 
 def ask_gpt_with_history(question: str, history: list[dict], context_chunks: list[str]) -> str:
     """
-    Genera una respuesta considerando el historial de conversación.
+    Genera una respuesta considerando el historial de conversación usando Claude 3.5 Sonnet.
     """
-    from openai import OpenAI
+    from anthropic import Anthropic
     import os
     from dotenv import load_dotenv
 
     load_dotenv()
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-    # Construir messages para la API
-    messages = [
-        {
-            "role": "system",
-            "content": "Eres un asistente amable y paciente para personas mayores. "
-                      "Respondé de forma clara, simple y respetuosa. Usá lenguaje sencillo "
-                      "y evitá términos técnicos. Si hay contexto de un manual, usalo para responder."
-        }
-    ]
+    # System prompt optimizado para personas mayores
+    system_prompt = """Eres un asistente amable y paciente diseñado especialmente para ayudar a personas mayores.
+
+INSTRUCCIONES IMPORTANTES:
+- Responde de forma clara, simple y respetuosa
+- Usa lenguaje sencillo y evita términos técnicos
+- Si explicas algo complejo, usa analogías cotidianas
+- Sé paciente y empático en todo momento
+- Las respuestas deben ser breves pero completas
+- Usa oraciones cortas y fáciles de entender
+- Puedes usar emojis ocasionales para hacer el texto más amigable (👋, 👍, ✅, etc.)
+- Recuerda el contexto de la conversación anterior
+- Si no entiendes la pregunta, pide amablemente que la repitan
+
+Tu objetivo es hacer que la tecnología sea accesible y menos intimidante."""
+
+    # Construir el mensaje del usuario con contexto e historial
+    user_content_parts = []
 
     # Agregar contexto del PDF si existe
     if context_chunks:
         context = "\n".join(context_chunks)
-        messages.append({
-            "role": "system",
-            "content": f"Contexto relevante del manual:\n{context}"
-        })
+        user_content_parts.append(f"""CONTEXTO DEL MANUAL:
+{context}
 
-    # Agregar historial de conversación
-    for msg in history:
-        if msg["role"] in ["user", "assistant"]:
-            messages.append({
-                "role": msg["role"],
-                "content": msg["content"]
-            })
+---
 
-    # La pregunta actual ya está en el historial como último mensaje del usuario
-    # Pero si el historial está vacío o solo tiene la pregunta actual:
-    if len(history) == 0 or (len(history) == 1 and history[0]["role"] == "user"):
-        messages.append({"role": "user", "content": question})
+Responde a la pregunta usando esta información cuando sea relevante.""")
+
+    # Agregar historial de conversación reciente (últimos 5 mensajes para no exceder el contexto)
+    if history:
+        user_content_parts.append("\nHISTORIAL DE LA CONVERSACIÓN:")
+        for msg in history[-6:]:  # Incluir hasta los últimos 6 mensajes
+            role_label = "Usuario" if msg["role"] == "user" else "Asistente"
+            user_content_parts.append(f"\n{role_label}: {msg['content']}")
+
+    # Agregar la pregunta actual
+    user_content_parts.append(f"\nPREGUNTA ACTUAL: {question}")
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=messages,
+        response = client.messages.create(
+            model="claude-3-5-sonnet-20241022",  # Claude 3.5 Sonnet
+            max_tokens=1000,
             temperature=0.7,
-            max_tokens=1000
+            system=system_prompt,
+            messages=[
+                {"role": "user", "content": "\n".join(user_content_parts)}
+            ]
         )
-        return response.choices[0].message.content
+        return response.content[0].text
     except Exception as e:
-        return f"Lo siento, tuve un problema al procesar tu pregunta. Por favor, intenta de nuevo. (Error: {str(e)})"
+        return f"Lo siento, tuve un problema al procesar tu pregunta. Por favor, intenta de nuevo. Si el problema persiste, verifica que la API key de Anthropic esté configurada correctamente.""
 
 
 # ============================================
