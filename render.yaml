@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: asistente-mayores-backend
+    env: python
+    repo: https://github.com/mrezk84/AsistenteMayoresAI # replace with your repo url
+    rootDir: asistente-backend
+    region: ohio
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: GEMINI_API_KEY
+        sync: false # Must be set in Render dashboard
+      - key: API_SECRET_TOKEN
+        value: "asistente-mayores-token-2024"
