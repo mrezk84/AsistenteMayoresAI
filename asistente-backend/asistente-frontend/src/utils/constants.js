@@ -1,6 +1,5 @@
 // Configuración de la API
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-export const API_TOKEN = import.meta.env.VITE_API_TOKEN || 'asistente-mayores-token-2024';
 
 // Configuración de voz
 export const SPEECH_CONFIG = {

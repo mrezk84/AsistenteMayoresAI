@@ -1,4 +1,4 @@
-import { API_BASE_URL, API_TOKEN, STORAGE_KEYS } from '../utils/constants';
+import { API_BASE_URL, STORAGE_KEYS } from '../utils/constants';
 
 // Obtener o generar device_id único para este dispositivo
 const getDeviceId = () => {
@@ -27,7 +27,6 @@ class ApiClient {
     const defaultOptions = {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_TOKEN}`,
       },
     };
 
@@ -56,9 +55,6 @@ class ApiClient {
 
     const response = await fetch(`${this.baseUrl}/pdfs/upload`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${API_TOKEN}`,
-      },
       body: formData,
     });
 
@@ -94,7 +90,7 @@ class ApiClient {
    * Crear una nueva conversación
    */
   async createConversation(title = 'Nueva conversación', pdfId = null) {
-    const response = await this.fetch(`/conversations/?device_id=${this.deviceId}`, {
+    const response = await this.fetch('/conversations/', {
       method: 'POST',
       body: JSON.stringify({
         title,
@@ -113,9 +109,6 @@ class ApiClient {
 
     const response = await fetch(`${this.baseUrl}/conversations/${conversationId}`, {
       method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${API_TOKEN}`,
-      },
       body: formData,
     });
 

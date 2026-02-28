@@ -1,0 +1,37 @@
+# Dependencias
+node_modules/
+venv/
+__pycache__/
+*.pyc
+
+# Entorno
+.env
+.env.local
+.env.*.local
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# ChromaDB
+chroma/
+chroma-duckdb/
+*.db
+*.db-journal
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+/tmp/
+
+# OS
+.DS_Store
+Thumbs.db
