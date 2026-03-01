@@ -1,13 +1,9 @@
 import chromadb
-from chromadb.config import Settings
 import uuid
 
 
-# Configurar el cliente de ChromaDB (usa embeddings locales por defecto - all-MiniLM-L6-v2)
-chroma_client = chromadb.Client(Settings(
-    chroma_db_impl="duckdb+parquet",
-    persist_directory="./chroma"
-))
+# Configurar el cliente de ChromaDB persistente
+chroma_client = chromadb.PersistentClient(path="./chroma")
 
 # Obtener o crear la colección (sin función de embeddings externa - usa la default local)
 collection = chroma_client.get_or_create_collection(
