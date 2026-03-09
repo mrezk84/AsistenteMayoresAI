@@ -11,7 +11,7 @@ import HistoryPage from './pages/HistoryPage';
  */
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/AsistenteMayoresAI">
       <Routes>
         <Route path="/" element={<Layout><ChatPage /></Layout>} />
         <Route path="/upload" element={<Layout><UploadPage /></Layout>} />
