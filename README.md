@@ -1,213 +1,152 @@
-# 🧓 Asistente para Personas Mayores
+# 🤖 Asistente para Personas Mayores
 
-Asistente digital accesible que permite a personas mayores **cargar manuales en PDF** y hacer preguntas en lenguaje natural sobre su contenido. El sistema responde de forma clara y sencilla, con **soporte completo de voz** (entrada y salida).
-
-## ✨ Características
-
-### 🎯 Funcionalidades Principales
-- **Chat con historial completo** - Las conversaciones se guardan y persisten
-- **Entrada por voz** - Habla tus preguntas usando el micrófono
-- **Salida de voz** - Las respuestas se leen en voz alta automáticamente
-- **Subida de PDFs** - Carga manuales para consultar su contenido
-- **Gestión de conversaciones** - Crea, edita y elimina conversaciones
-- **Diseño accesible** - Fuentes grandes, alto contraste, botones grandes
-
-### ♿ Accesibilidad
-- Fuentes base de 18px para mejor legibilidad
-- Alto contraste WCAG AA compliant
-- Botones con mínimo táctil de 44px
-- Navegación por teclado (Enter para enviar, Esc para cancelar)
-- Indicadores de foco visibles
-- Aria labels para lectores de pantalla
+> Un asistente virtual con inteligencia artificial diseñado para hacer la tecnología más accesible y amigable para personas mayores.
 
 ---
 
-## 📐 Arquitectura
+## ✨ ¿Qué hace esta aplicación?
 
-El sistema sigue una arquitectura **cliente-servidor**:
+Este asistente de chat permite a personas mayores **hacer preguntas en lenguaje natural** y recibir respuestas claras, simples y empáticas. Utiliza **Google Gemini 2.5 Flash** con búsqueda en tiempo real para brindar información actualizada.
 
-### Frontend (Cliente web)
-- **React 18** con Vite
-- **React Router** para navegación
-- **TailwindCSS** para estilos
-- **Web Speech API** para voz (entrada y salida)
+### 🎯 Funcionalidades principales
 
-### Backend (Servidor API)
-- **FastAPI** (Python)
-- **SQLAlchemy** con SQLite para persistencia
-- **ChromaDB** para búsquedas semánticas
-- **Anthropic Claude 3.5 Sonnet** para generar respuestas
-- **PyMuPDF** para procesar PDFs
+| Función | Descripción |
+|---------|-------------|
+| 💬 **Chat inteligente** | Conversaciones naturales con IA empática y paciente |
+| 🔍 **Búsqueda en tiempo real** | Respuestas actualizadas gracias a Google Search |
+| 📄 **Subida de PDFs** | Sube manuales o documentos y hacé preguntas sobre ellos |
+| 🎙️ **Entrada por voz** | Hablá en vez de escribir (Web Speech API) |
+| 🔊 **Respuestas en voz alta** | El asistente puede leer sus respuestas |
+| 📱 **Diseño responsive** | Funciona en celulares, tablets y computadoras |
 
 ---
 
-## 🛠️ Tecnologías
+## 🏗️ Arquitectura
 
-| Capa          | Tecnologías |
-|---------------|-------------|
-| **Frontend**  | React, Vite, React Router, TailwindCSS, Web Speech API |
-| **Backend**   | FastAPI, SQLAlchemy, Uvicorn, Python-dotenv |
-| **IA**        | Anthropic Claude 3.5 Sonnet |
-| **Vector DB** | ChromaDB |
-| **Base de Datos** | SQLite |
-| **PDF**       | PyMuPDF |
+```
+┌─────────────────┐         ┌─────────────────────┐
+│   Frontend      │  HTTP   │     Backend          │
+│   React + Vite  │ ◄─────► │   FastAPI + Python   │
+│   (GitHub Pages)│         │     (Render)         │
+└─────────────────┘         └──────────┬──────────┘
+                                       │
+                            ┌──────────▼──────────┐
+                            │   Google Gemini AI   │
+                            │   + Google Search    │
+                            └─────────────────────┘
+```
 
 ---
 
-## 🚀 Instalación y Desarrollo
+## 🚀 Cómo ejecutar localmente
 
-### Requisitos Previos
-- Node.js 18+
-- Python 3.9+
-- API Key de Anthropic
+### Requisitos previos
+- **Python 3.12+**
+- **Node.js 18+**
+- Una [API Key de Google Gemini](https://aistudio.google.com/apikey) (gratis)
 
-### Backend
+### 1. Backend
 
 ```bash
 cd asistente-backend
-
-# Crear entorno virtual
 python -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
-
-# Instalar dependencias
+source venv/bin/activate        # En Mac/Linux
 pip install -r requirements.txt
-
-# Crear archivo .env
-echo "ANTHROPIC_API_KEY=tu_clave_aqui" > .env
-
-# Ejecutar servidor
-uvicorn main:app --reload
 ```
 
-El backend estará disponible en `http://localhost:8000`
+Crear el archivo `.env`:
+```env
+GEMINI_API_KEY=tu_clave_de_gemini_aqui
+API_SECRET_TOKEN=asistente-mayores-token-2024
+```
 
-### Frontend
+Iniciar el servidor:
+```bash
+uvicorn main:app --reload --port 8000
+```
+
+### 2. Frontend
 
 ```bash
 cd asistente-frontend
-
-# Instalar dependencias
 npm install
+```
 
-# Crear archivo .env (opcional, por defecto apunta a localhost:8000)
-echo "VITE_API_URL=http://localhost:8000" > .env
+Crear el archivo `.env`:
+```env
+VITE_API_URL=http://localhost:8000
+VITE_API_TOKEN=asistente-mayores-token-2024
+```
 
-# Ejecutar servidor de desarrollo
+Iniciar la app:
+```bash
 npm run dev
 ```
 
-El frontend estará disponible en `http://localhost:5173`
+Abrir **http://localhost:3000** en tu navegador. ¡Listo! 🎉
 
 ---
 
-## 📂 Estructura del Proyecto
+## 🌐 Deploy en producción
+
+| Servicio | Plataforma | URL |
+|----------|------------|-----|
+| Frontend | GitHub Pages | `https://mrezk84.github.io/AsistenteMayoresAI/` |
+| Backend  | Render (Free) | `https://asistente-mayores-backend.onrender.com` |
+
+El deploy es **automático**: cada push a `main` ejecuta el workflow de GitHub Actions que publica el frontend.
+
+---
+
+## 🛠️ Tecnologías utilizadas
+
+### Frontend
+- ⚛️ React 18
+- ⚡ Vite
+- 🎨 Tailwind CSS
+- 🗣️ Web Speech API (voz)
+
+### Backend
+- 🐍 FastAPI
+- 🧠 Google Gemini 2.5 Flash
+- 🔎 Google Search Grounding
+- 📊 SQLAlchemy + SQLite
+- 📦 ChromaDB (búsqueda vectorial)
+- 📄 PyMuPDF (procesamiento de PDFs)
+
+---
+
+## 📁 Estructura del proyecto
 
 ```
 AsistenteMayoresAI/
-├── asistente-backend/          # API FastAPI
-│   ├── main.py                 # Endpoints de la API
-│   ├── database.py             # Configuración de BD
-│   ├── models.py               # Modelos SQLAlchemy
-│   ├── chat_engine.py          # Integración con Claude
-│   ├── pdf_utils.py            # Procesamiento de PDFs
-│   ├── vector_store.py         # ChromaDB embeddings
-│   └── requirements.txt        # Dependencias Python
-│
-├── asistente-frontend/         # Aplicación React
+├── asistente-frontend/          # Aplicación React
 │   ├── src/
-│   │   ├── components/         # Componentes React
-│   │   │   ├── ChatInterface.jsx
-│   │   │   ├── ChatMessage.jsx
-│   │   │   ├── PDFUploader.jsx
-│   │   │   ├── VoiceControls.jsx
-│   │   │   └── Layout.jsx
-│   │   ├── hooks/             # Hooks personalizados
-│   │   │   ├── useChat.js
-│   │   │   ├── useSpeech.js
-│   │   │   └── useLocalStorage.js
-│   │   ├── pages/             # Páginas de la app
-│   │   │   ├── ChatPage.jsx
-│   │   │   ├── UploadPage.jsx
-│   │   │   └── HistoryPage.jsx
-│   │   ├── services/          # Cliente API
-│   │   │   └── api.js
-│   │   ├── utils/             # Utilidades
-│   │   │   └── constants.js
-│   │   ├── App.jsx            # Router principal
-│   │   └── index.css          # Estilos globales
+│   │   ├── components/          # Componentes UI
+│   │   ├── hooks/               # Custom hooks
+│   │   ├── pages/               # Páginas
+│   │   └── services/            # Llamadas a API
 │   └── package.json
-│
+├── asistente-backend/           # API FastAPI
+│   ├── main.py                  # Endpoints y lógica principal
+│   ├── chat_engine.py           # Motor de chat con Gemini
+│   ├── vector_store.py          # Búsqueda vectorial (ChromaDB)
+│   ├── pdf_utils.py             # Procesamiento de PDFs
+│   ├── models.py                # Modelos de base de datos
+│   └── requirements.txt
+├── .github/workflows/           # CI/CD con GitHub Actions
+├── render.yaml                  # Configuración de Render
 └── README.md
 ```
 
 ---
 
-## 🔄 API Endpoints
+## 👤 Autor
 
-### Endpoints Originales (Mantenidos por compatibilidad)
-- `POST /upload-pdf/` - Subir PDF (sin usuario)
-- `POST /ask/` - Pregunta sin historial
-
-### Nuevos Endpoints con Base de Datos
-
-#### Gestión de Conversaciones
-- `GET /conversations/?device_id={id}` - Listar conversaciones
-- `GET /conversations/{id}` - Obtener conversación con mensajes
-- `POST /conversations/` - Crear nueva conversación
-- `PUT /conversations/{id}` - Actualizar título
-- `DELETE /conversations/{id}` - Eliminar conversación
-
-#### Chat
-- `POST /chat/` - Enviar mensaje con historial
-
-#### PDFs
-- `POST /pdfs/upload` - Subir PDF asociado a usuario
-- `GET /pdfs/user/{user_id}` - Listar PDFs del usuario
-
-#### Utilidades
-- `GET /users/device/{device_id}` - Obtener o crear usuario
-- `GET /health` - Health check
+**Marcos Rezk** — [@mrezk84](https://github.com/mrezk84)
 
 ---
 
-## 🚀 Despliegue
-
-### Backend en Render
-1. Crear servicio web en [Render](https://render.com)
-2. Conectar repositorio, configurar carpeta `asistente-backend`
-3. Variables de entorno:
-   - `ANTHROPIC_API_KEY=tu_clave`
-4. Deploy automático desde git
-
-### Frontend en Vercel
-1. Crear proyecto en [Vercel](https://vercel.com)
-2. Conectar repositorio, configurar carpeta `asistente-frontend`
-3. Variables de entorno:
-   - `VITE_API_URL=https://tu-backend.onrender.com`
-4. Deploy automático desde git
-
----
-
-## 🎨 Uso de la Aplicación
-
-### 1. Subir un Manual
-- Ve a la sección "Subir PDF"
-- Arrastra o selecciona un archivo PDF
-- Espera el procesamiento
-
-### 2. Chatear
-- Escribe tu pregunta en el campo de texto
-- O presiona el botón del micrófono para hablar
-- La respuesta aparecerá en el chat y se leerá en voz alta
-
-### 3. Gestionar Conversaciones
-- Ve a "Historial" para ver todas tus conversaciones
-- Haz clic en una para continuarla
-- Elimina las que ya no necesites
-
----
-
-## 📄 Licencia
-
-Este proyecto es de código abierto y está disponible bajo la licencia MIT.
+<p align="center">
+  Hecho con ❤️ para hacer la tecnología más accesible
+</p>
