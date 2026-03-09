@@ -85,9 +85,9 @@ function ChatInterface({
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
+      <div className="bg-white/70 backdrop-blur-md border-b border-blue-100 px-6 py-4 flex items-center justify-between shadow-sm">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
             📘 Asistente para Personas Mayores
@@ -153,7 +153,7 @@ function ChatInterface({
       </div>
 
       {/* Área de input y controles */}
-      <div className="bg-white border-t border-gray-200 px-6 py-4 shadow-lg">
+      <div className="bg-white/70 backdrop-blur-md border-t border-blue-100 px-6 py-4 shadow-lg">
         <div className="max-w-3xl mx-auto flex gap-4">
           {/* Input de mensaje */}
           <form onSubmit={handleSubmit} className="flex-1 flex gap-3">
