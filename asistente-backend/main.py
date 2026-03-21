@@ -247,17 +247,37 @@ def check_auth(current_user: Optional[dict] = Depends(get_current_user_optional)
 # ============================================
 
 @app.post("/upload-pdf/")
-async def upload_pdf(file: UploadFile = File(...), token: str = Depends(verify_token)):
-    """Endpoint original para subir PDF (sin asociar a usuario)"""
+async def upload_pdf(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Endpoint para subir PDF (asociado al usuario autenticado)"""
     contents = await file.read()
     text = extract_text_from_pdf(contents)
+
+    # Guardar el PDF en la base de datos
+    pdf_doc = PDFDocument(
+        filename=file.filename,
+        user_id=current_user["user_id"]
+    )
+    db: Session = Depends(get_db)
+    db = SessionLocal()
+    try:
+        db.add(pdf_doc)
+        db.commit()
+    finally:
+        db.close()
+
     store_text(text)
     return {"message": "Manual cargado con éxito."}
 
 
 @app.post("/ask/")
-async def ask_question(question: str = Form(...), token: str = Depends(verify_token)):
-    """Endpoint original para preguntar (sin historial)"""
+async def ask_question(
+    question: str = Form(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Endpoint para preguntar (sin historial)"""
     relevant_chunks = get_relevant_chunks(question)
     answer = ask_gpt(question, relevant_chunks)
     return {"answer": answer}
@@ -272,7 +292,11 @@ async def ask_question(question: str = Form(...), token: str = Depends(verify_to
 # ============================================
 
 @app.get("/users/device/{device_id}", response_model=None)
-def get_or_create_user(device_id: str, db: Session = Depends(get_db), token: str = Depends(verify_token)):
+def get_or_create_user(
+    device_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
     """Obtiene o crea un usuario por device_id (DEPRECATED - usar /auth/login)"""
     user = db.query(User).filter(User.device_id == device_id).first()
     if not user:
@@ -285,20 +309,11 @@ def get_or_create_user(device_id: str, db: Session = Depends(get_db), token: str
 
 @app.get("/conversations/", response_model=list[ConversationResponse])
 def get_conversations(
-    user_id: Optional[int] = None,
-    device_id: Optional[str] = None,
     db: Session = Depends(get_db),
-    token: str = Depends(verify_token)
+    current_user: dict = Depends(get_current_user)
 ):
-    """Lista todas las conversaciones de un usuario"""
-    query = db.query(Conversation)
-
-    if user_id:
-        query = query.filter(Conversation.user_id == user_id)
-    elif device_id:
-        user = db.query(User).filter(User.device_id == device_id).first()
-        if user:
-            query = query.filter(Conversation.user_id == user.id)
+    """Lista todas las conversaciones del usuario autenticado"""
+    query = db.query(Conversation).filter(Conversation.user_id == current_user["user_id"])
         else:
             return []
 
@@ -306,9 +321,16 @@ def get_conversations(
 
 
 @app.get("/conversations/{conversation_id}", response_model=ConversationResponse)
-def get_conversation(conversation_id: int, db: Session = Depends(get_db), token: str = Depends(verify_token)):
+def get_conversation(
+    conversation_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
     """Obtiene una conversación específica con sus mensajes"""
-    conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    conversation = db.query(Conversation).filter(
+        Conversation.id == conversation_id,
+        Conversation.user_id == current_user["user_id"]
+    ).first()
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversación no encontrada")
     return conversation
@@ -317,41 +339,23 @@ def get_conversation(conversation_id: int, db: Session = Depends(get_db), token:
 @app.post("/conversations/", response_model=ConversationResponse)
 def create_conversation(
     conversation: ConversationCreate,
-    user_id: Optional[int] = None,
-    device_id: Optional[str] = None,
     db: Session = Depends(get_db),
-    token: str = Depends(verify_token)
+    current_user: Optional[dict] = Depends(get_current_user_optional)
 ):
     """Crea una nueva conversación"""
-    # Determinar user_id
-    uid = user_id
-    if not uid and device_id:
-        user = db.query(User).filter(User.device_id == device_id).first()
-        if user:
-            uid = user.id
-        else:
-            user = User(device_id=device_id, username=f"guest_{device_id}")
-            db.add(user)
-            try:
-                db.commit()
-                db.refresh(user)
-            except Exception:
-                db.rollback()
-                # Si el usuario ya existe con otro device_id con el mismo nombre, usar timestamp
-                import time
-                user = User(device_id=device_id, username=f"guest_{int(time.time())}")
-                db.add(user)
-                db.commit()
-                db.refresh(user)
-            uid = user.id
+    # Obtener user_id del JWT token
+    uid = current_user.get("user_id") if current_user else None
 
     if not uid:
-        raise HTTPException(status_code=400, detail="Se requiere user_id o device_id")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Debes iniciar sesión para crear una conversación"
+        )
 
     new_conversation = Conversation(
         user_id=uid,
         pdf_id=conversation.pdf_id,
-        title=conversation.title
+        title=conversation.title or "Nueva conversación"
     )
     db.add(new_conversation)
     db.commit()
@@ -364,10 +368,15 @@ def update_conversation_title(
     conversation_id: int,
     title: str = Form(...),
     db: Session = Depends(get_db),
-    token: str = Depends(verify_token)
+    current_user: dict = Depends(get_current_user)
 ):
     """Actualiza el título de una conversación"""
-    conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    # Verificar que la conversación pertenezca al usuario
+    conversation = db.query(Conversation).filter(
+        Conversation.id == conversation_id,
+        Conversation.user_id == current_user["user_id"]
+    ).first()
+
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversación no encontrada")
 
@@ -378,9 +387,18 @@ def update_conversation_title(
 
 
 @app.delete("/conversations/{conversation_id}")
-def delete_conversation(conversation_id: int, db: Session = Depends(get_db), token: str = Depends(verify_token)):
+def delete_conversation(
+    conversation_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
     """Elimina una conversación y sus mensajes"""
-    conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    # Verificar que la conversación pertenezca al usuario
+    conversation = db.query(Conversation).filter(
+        Conversation.id == conversation_id,
+        Conversation.user_id == current_user["user_id"]
+    ).first()
+
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversación no encontrada")
 
@@ -397,15 +415,16 @@ def delete_conversation(conversation_id: int, db: Session = Depends(get_db), tok
 async def chat_with_history(
     request: ChatRequest,
     db: Session = Depends(get_db),
-    token: str = Depends(verify_token)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Endpoint de chat con soporte de historial.
     Genera una respuesta considerando el historial de la conversación.
     """
-    # Obtener la conversación
+    # Obtener la conversación (verificar que pertenezca al usuario)
     conversation = db.query(Conversation).filter(
-        Conversation.id == request.conversation_id
+        Conversation.id == request.conversation_id,
+        Conversation.user_id == current_user["user_id"]
     ).first()
 
     if not conversation:
@@ -463,30 +482,15 @@ async def chat_with_history(
 @app.post("/pdfs/upload")
 async def upload_pdf_with_user(
     file: UploadFile = File(...),
-    user_id: Optional[int] = None,
-    device_id: Optional[str] = None,
     db: Session = Depends(get_db),
-    token: str = Depends(verify_token)
+    current_user: dict = Depends(get_current_user)
 ):
     """
-    Sube un PDF y lo asocia a un usuario.
+    Sube un PDF y lo asocia al usuario autenticado.
     Retorna el PDF document ID para usar en conversaciones.
     """
-    # Determinar user_id
-    uid = user_id
-    if not uid and device_id:
-        user = db.query(User).filter(User.device_id == device_id).first()
-        if user:
-            uid = user.id
-        else:
-            user = User(device_id=device_id, username=f"guest_{device_id[:8]}")
-            db.add(user)
-            db.commit()
-            db.refresh(user)
-            uid = user.id
-
-    if not uid:
-        raise HTTPException(status_code=400, detail="Se requiere user_id o device_id")
+    # Obtener user_id del JWT token
+    uid = current_user["user_id"]
 
     # Procesar PDF
     contents = await file.read()
@@ -510,8 +514,18 @@ async def upload_pdf_with_user(
 
 
 @app.get("/pdfs/user/{user_id}")
-def get_user_pdfs(user_id: int, db: Session = Depends(get_db), token: str = Depends(verify_token)):
-    """Lista todos los PDFs de un usuario"""
+def get_user_pdfs(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Lista todos los PDFs de un usuario (solo puede ver sus propios PDFs)"""
+    # Verificar que el user_id sea el del usuario autenticado
+    if user_id != current_user["user_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permiso para ver PDFs de otros usuarios"
+        )
     pdfs = db.query(PDFDocument).filter(PDFDocument.user_id == user_id).all()
     return [{"id": p.id, "filename": p.filename, "uploaded_at": p.uploaded_at} for p in pdfs]
 
