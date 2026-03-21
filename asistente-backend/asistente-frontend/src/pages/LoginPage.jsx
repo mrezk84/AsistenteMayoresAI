@@ -88,37 +88,27 @@ function LoginPage({ onLogin }) {
       className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4"
       style={{ backgroundImage: `url(${BACKGROUND_IMAGE})` }}
     >
-      <div className="w-full max-w-2xl relative z-10">
-        {/* Logo y título */}
-        <div className="text-center mb-8">
-          <div className="text-7xl mb-4 animate-bounce">👋</div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Asistente para Personas Mayores
-          </h1>
-          <p className="text-xl text-gray-700">
-            {isRegister ? 'Crea tu cuenta personal' : 'Bienvenido de nuevo'}
-          </p>
-        </div>
+      <div className="w-full max-w-6xl relative z-10">
+        {/* Contenedor de dos columnas */}
+        <div className="flex flex-col lg:flex-row gap-8 items-center">
 
-        {/* BOTÓN DESTACADO - ¿Olvidaste tu PIN? */}
-        {!isRegister && (
-          <div className="mb-6">
-            <button
-              onClick={() => navigate('/recover-pin')}
-              className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-6 px-8 rounded-2xl text-2xl font-bold shadow-lg hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105 animate-pulse-slow flex items-center justify-center gap-4"
-            >
-              <span className="text-4xl">🔐</span>
-              <span>¿Olvidaste tu PIN?</span>
-              <span className="text-4xl">❓</span>
-            </button>
-            <p className="text-center text-lg text-gray-700 mt-3 font-medium">
-              Presiona aquí si no recuerdas tu PIN para entrar
+          {/* COLUMNA IZQUIERDA - Logo y título */}
+          <div className="flex-1 text-center lg:text-left">
+            <div className="text-7xl mb-4 animate-bounce">👋</div>
+            <h1 className="text-4xl lg:text-5xl font-bold text-gray-800 mb-3">
+              Asistente para Personas Mayores
+            </h1>
+            <p className="text-xl lg:text-2xl text-gray-700 mb-6">
+              {isRegister ? 'Crea tu cuenta personal' : 'Bienvenido de nuevo'}
+            </p>
+            <p className="text-lg text-gray-600">
+              Una aplicación fácil de usar, diseñada especialmente para ti.
             </p>
           </div>
-        )}
 
-        {/* Tarjeta de login/registro */}
-        <div className="glass-card rounded-3xl shadow-2xl p-8 md:p-12">
+          {/* COLUMNA DERECHA - Formulario */}
+          <div className="flex-1 w-full">
+            <div className="glass-card rounded-3xl shadow-2xl p-6 md:p-10">
           {/* Instrucciones */}
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-8">
             <div className="flex items-start">
@@ -289,6 +279,24 @@ function LoginPage({ onLogin }) {
             </button>
           </div>
         </div>
+        </div>
+
+        {/* BOTÓN ¿Olvidaste tu PIN? - Abajo del formulario */}
+        {!isRegister && (
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => navigate('/recover-pin')}
+              className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-4 px-8 rounded-2xl text-xl font-bold shadow-lg hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105 animate-pulse-slow flex items-center justify-center gap-3 mx-auto"
+            >
+              <span className="text-3xl">🔐</span>
+              <span>¿Olvidaste tu PIN?</span>
+              <span className="text-3xl">❓</span>
+            </button>
+            <p className="text-lg text-gray-700 mt-3 font-medium">
+              Presiona aquí si no recuerdas tu PIN para entrar
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
