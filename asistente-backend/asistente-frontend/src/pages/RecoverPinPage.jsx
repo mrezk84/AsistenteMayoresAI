@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import './RecoverPinPage.css';
 
+// Imagen de fondo
+const BACKGROUND_IMAGE = "https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&q=80";
+
 export default function RecoverPinPage() {
   const [step, setStep] = useState(1);
   const [username, setUsername] = useState('');
@@ -112,7 +115,13 @@ export default function RecoverPinPage() {
   };
 
   return (
-    <div className="recover-page">
+    <div
+      className="recover-page"
+      style={{ backgroundImage: `url(${BACKGROUND_IMAGE})` }}
+    >
+      {/* Overlay oscuro para mejor legibilidad */}
+      <div className="page-overlay"></div>
+
       <div className="recover-container">
         {/* Header */}
         <div className="recover-header">
