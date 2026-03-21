@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { api } from '../services/api';
 import './SettingsPage.css';
 
-export function SettingsPage() {
+function SettingsPage() {
   const [currentPin, setCurrentPin] = useState('');
   const [newPin, setNewPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
@@ -125,3 +125,6 @@ export function SettingsPage() {
     </div>
   );
 }
+
+
+export default SettingsPage;

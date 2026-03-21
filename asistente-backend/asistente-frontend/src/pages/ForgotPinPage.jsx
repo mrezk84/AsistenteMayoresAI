@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import './ForgotPinPage.css';
 
-export function ForgotPinPage() {
+function ForgotPinPage() {
   const [username, setUsername] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -129,3 +129,5 @@ export function ForgotPinPage() {
     </div>
   );
 }
+
+export default ForgotPinPage;

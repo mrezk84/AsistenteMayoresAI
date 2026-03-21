@@ -365,7 +365,7 @@ Responde a la pregunta usando esta información cuando sea relevante.""")
         )
         return response.content[0].text
     except Exception as e:
-        return f"Lo siento, tuve un problema al procesar tu pregunta. Por favor, intenta de nuevo. Si el problema persiste, verifica que la API key de Anthropic esté configurada correctamente.""
+        return f"Lo siento, tuve un problema al procesar tu pregunta. Por favor, intenta de nuevo. Si el problema persiste, verifica que la API key de Anthropic esté configurada correctamente."
 
 
 # ============================================
