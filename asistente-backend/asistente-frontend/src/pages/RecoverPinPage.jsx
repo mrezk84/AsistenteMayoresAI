@@ -6,13 +6,13 @@ import './RecoverPinPage.css';
 export default function RecoverPinPage() {
   const [step, setStep] = useState(1);
   const [username, setUsername] = useState('');
-  const [resetCode, setResetCode] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [resetCode, setResetCode] = useState('');
   const [newPin, setNewPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [adminKey, setAdminKey] = useState('');
-  const [resetComplete, setResetComplete] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [userName, setUserName] = useState('');
   const navigate = useNavigate();
 
   // Paso 1: Usuario solicita código de reseteo
@@ -26,6 +26,7 @@ export default function RecoverPinPage() {
     try {
       const response = await api.requestPinReset(username);
       setResetCode(response.reset_code);
+      setUserName(response.user_full_name || username);
       setStep(2);
       setMessage('');
     } catch (error) {
@@ -35,8 +36,19 @@ export default function RecoverPinPage() {
     }
   };
 
-  // Paso 2: Familiar completa el reseteo
-  const handleFamilyReset = async (e) => {
+  // Paso 2: Confirmar que el código es correcto
+  const handleConfirmCode = (e) => {
+    e.preventDefault();
+    if (resetCode.trim() !== resetCode) {
+      setMessage('El código no coincide');
+      return;
+    }
+    setStep(3);
+    setMessage('');
+  };
+
+  // Paso 3: Crear nuevo PIN
+  const handleCreatePin = (e) => {
     e.preventDefault();
 
     if (!/^\d{4}$/.test(newPin)) {
@@ -44,11 +56,20 @@ export default function RecoverPinPage() {
       return;
     }
     if (newPin !== confirmPin) {
-      setMessage('Los PIN no coinciden');
+      setMessage('Los PIN no coinciden. Intenta de nuevo.');
       return;
     }
+
+    setStep(4);
+    setMessage('');
+  };
+
+  // Paso 4: Confirmar todo y resetear
+  const handleResetComplete = async (e) => {
+    e.preventDefault();
+
     if (!adminKey.trim()) {
-      setMessage('Ingresa la clave de administrador');
+      setMessage('Se necesita la clave de administrador');
       return;
     }
 
@@ -70,8 +91,7 @@ export default function RecoverPinPage() {
         throw new Error(data.detail || 'Error al resetear el PIN');
       }
 
-      setResetComplete(true);
-      setStep(3);
+      setStep(5);
       setMessage('');
     } catch (error) {
       setMessage(`❌ ${error.message}`);
@@ -83,12 +103,12 @@ export default function RecoverPinPage() {
   const startOver = () => {
     setStep(1);
     setUsername('');
-    setResetCode(null);
+    setResetCode('');
     setNewPin('');
     setConfirmPin('');
     setAdminKey('');
     setMessage('');
-    setResetComplete(false);
+    setUserName('');
   };
 
   return (
@@ -97,69 +117,56 @@ export default function RecoverPinPage() {
         {/* Header */}
         <div className="recover-header">
           <span className="header-icon">🔐</span>
-          <h1>Recuperación de PIN</h1>
-          <p>Sigue los pasos para recuperar tu acceso</p>
+          <h1>Cambiar mi PIN</h1>
+          <p>Sigue los pasos para crear un nuevo PIN</p>
         </div>
 
-        {/* Progress Steps */}
-        <div className="progress-container">
-          <div className={`step ${step >= 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}>
-            <span className="step-number">1</span>
-            <span className="step-label">Solicitar</span>
-          </div>
-          <div className={`step-line ${step >= 2 ? 'active' : ''}`}></div>
-          <div className={`step ${step >= 2 ? 'active' : ''} ${step > 2 ? 'completed' : ''}`}>
-            <span className="step-number">2</span>
-            <span className="step-label">Familiar</span>
-          </div>
-          <div className={`step-line ${step >= 3 ? 'active' : ''}`}></div>
-          <div className={`step ${step >= 3 ? 'active' : ''}`}>
-            <span className="step-number">3</span>
-            <span className="step-label">Listo</span>
-          </div>
+        {/* Progress Bar */}
+        <div className="progress-bar">
+          <div className={`progress-step ${step >= 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}>1</div>
+          <div className={`progress-line ${step >= 2 ? 'active' : ''}`}></div>
+          <div className={`progress-step ${step >= 2 ? 'active' : ''} ${step > 2 ? 'completed' : ''}`}>2</div>
+          <div className={`progress-line ${step >= 3 ? 'active' : ''}`}></div>
+          <div className={`progress-step ${step >= 3 ? 'active' : ''} ${step > 3 ? 'completed' : ''}`}>3</div>
+          <div className={`progress-line ${step >= 4 ? 'active' : ''}`}></div>
+          <div className={`progress-step ${step >= 4 ? 'active' : ''} ${step > 4 ? 'completed' : ''}`}>4</div>
+          <div className={`progress-line ${step >= 5 ? 'active' : ''}`}></div>
+          <div className={`progress-step ${step >= 5 ? 'active' : ''}`}>✓</div>
         </div>
 
-        {/* PASO 1: Usuario solicita código */}
+        <div className="step-labels">
+          <span className={step === 1 ? 'active' : ''}>1. Tu Código</span>
+          <span className={step === 2 ? 'active' : ''}>2. Confirmar</span>
+          <span className={step === 3 ? 'active' : ''}>3. Nuevo PIN</span>
+          <span className={step === 4 ? 'active' : ''}>4. Finalizar</span>
+          <span className={step === 5 ? 'active' : ''}>¡Listo!</span>
+        </div>
+
+        {/* PASO 1: Ingresar código de usuario */}
         {step === 1 && (
           <div className="card">
-            <div className="card-header">
-              <span className="step-icon">📝</span>
-              <h2>Paso 1: Solicita tu código</h2>
+            <div className="card-title">
+              <span className="step-number">1</span>
+              <h2>¿Cuál es tu código de usuario?</h2>
             </div>
-
-            <div className="instructions">
-              <h3>👤 Si olvidaste tu PIN, sigue estos pasos:</h3>
-              <ol>
-                <li>Escribe tu código de usuario (ej: MARIA01)</li>
-                <li>Presiona "Obtener Código"</li>
-                <li>Copia el código que aparece</li>
-                <li>Muéstraselo a un familiar o administrador</li>
-              </ol>
-            </div>
+            <p className="card-text">
+              Escribe el código que usas para entrar (ej: MARIA01)
+            </p>
 
             <form onSubmit={handleRequestCode} className="form">
-              <div className="form-group">
-                <label htmlFor="username">Tu Código de Usuario</label>
-                <input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value.toUpperCase())}
-                  placeholder="Ej: MARIA01"
-                  className="input-text"
-                  required
-                />
-                <small>Este es el código que usas para entrar al sistema</small>
-              </div>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value.toUpperCase())}
+                placeholder="Ej: MARIA01"
+                className="big-input"
+                required
+              />
 
-              {message && (
-                <div className={`message ${message.startsWith('❌') ? 'error' : 'success'}`}>
-                  {message}
-                </div>
-              )}
+              {message && <div className="message error">{message}</div>}
 
               <button type="submit" className="btn-primary" disabled={loading}>
-                {loading ? '⏳ Generando...' : '📧 Obtener Código'}
+                {loading ? '⏳ Buscando...' : 'Continuar →'}
               </button>
             </form>
 
@@ -169,34 +176,54 @@ export default function RecoverPinPage() {
           </div>
         )}
 
-        {/* PASO 2: Familiar completa el reseteo */}
-        {step === 2 && resetCode && (
+        {/* PASO 2: Mostrar código generado */}
+        {step === 2 && (
           <div className="card">
-            <div className="card-header">
-              <span className="step-icon">👨‍👩‍👧‍👦</span>
-              <h2>Paso 2: Para tu Familiar</h2>
+            <div className="card-title">
+              <span className="step-number">2</span>
+              <h2>¡Copia este código!</h2>
+            </div>
+            <p className="card-text">
+              Este es tu código de reseteo. Muéstralo a un familiar.
+            </p>
+
+            <div className="code-box-large">
+              <div className="code-title">CÓDIGO DE RESETEO</div>
+              <div className="code-value">{resetCode}</div>
             </div>
 
-            <div className="code-display">
-              <p className="code-label">CÓDIGO DE RESETEO:</p>
-              <div className="code-box">{resetCode}</div>
-              <p className="code-hint">Este código lo necesita tu familiar para ayudarte</p>
-            </div>
-
-            <div className="family-section">
-              <h3>🔧 Instrucciones para el familiar/administrador:</h3>
-              <ol className="family-steps">
-                <li>Copia el código de arriba: <strong>{resetCode}</strong></li>
-                <li>Crea un nuevo PIN de 4 números para el usuario</li>
-                <li>Ingresa la clave de administrador</li>
-                <li>Presiona "Resetear PIN"</li>
-                <li>Informa al usuario cuál es su nuevo PIN</li>
+            <div className="info-box">
+              <strong>💡 Instrucciones:</strong>
+              <ol>
+                <li>Copia o escribe este código: <strong>{resetCode}</strong></li>
+                <li>Muéstralo a tu familiar o administrador</li>
+                <li>Ellos usarán este código para ayudarte a crear un nuevo PIN</li>
               </ol>
             </div>
 
-            <form onSubmit={handleFamilyReset} className="form family-form">
-              <h4>📋 Formulario de Reseteo</h4>
+            <div className="button-group">
+              <button onClick={() => setStep(1)} className="btn-secondary">
+                ← Atrás
+              </button>
+              <button onClick={() => setStep(3)} className="btn-primary">
+                Continuar →
+              </button>
+            </div>
+          </div>
+        )}
 
+        {/* PASO 3: Crear nuevo PIN */}
+        {step === 3 && (
+          <div className="card">
+            <div className="card-title">
+              <span className="step-number">3</span>
+              <h2>Crea tu nuevo PIN</h2>
+            </div>
+            <p className="card-text">
+              Elige 4 números que puedas recordar fácilmente
+            </p>
+
+            <form onSubmit={handleCreatePin} className="form">
               <div className="form-group">
                 <label>Nuevo PIN (4 números)</label>
                 <input
@@ -206,13 +233,13 @@ export default function RecoverPinPage() {
                   value={newPin}
                   onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ''))}
                   placeholder="••••"
-                  className="input-pin"
+                  className="pin-input"
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label>Confirmar PIN</label>
+                <label>Confirma tu nuevo PIN</label>
                 <input
                   type="password"
                   inputMode="numeric"
@@ -220,78 +247,116 @@ export default function RecoverPinPage() {
                   value={confirmPin}
                   onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
                   placeholder="••••"
-                  className="input-pin"
+                  className="pin-input"
                   required
                 />
               </div>
 
-              <div className="form-group">
-                <label>Clave de Administrador</label>
-                <input
-                  type="password"
-                  value={adminKey}
-                  onChange={(e) => setAdminKey(e.target.value)}
-                  placeholder="Ingresa la clave de administrador"
-                  className="input-text"
-                  required
-                />
-                <small>Esta clave es solo para familiares/administradores</small>
-              </div>
+              {message && <div className="message error">{message}</div>}
 
-              {message && (
-                <div className={`message ${message.startsWith('❌') ? 'error' : 'success'}`}>
-                  {message}
-                </div>
-              )}
+              <div className="summary-box">
+                <p><strong>Código de reseteo:</strong> {resetCode}</p>
+              </div>
 
               <div className="button-group">
-                <button type="button" onClick={startOver} className="btn-secondary">
-                  ← Empezar de nuevo
+                <button type="button" onClick={() => setStep(2)} className="btn-secondary">
+                  ← Atrás
                 </button>
-                <button type="submit" className="btn-success" disabled={loading}>
-                  {loading ? '⏳ Procesando...' : '✅ Resetear PIN'}
+                <button type="submit" className="btn-primary">
+                  Continuar →
                 </button>
               </div>
             </form>
           </div>
         )}
 
-        {/* PASO 3: Completado */}
-        {step === 3 && resetComplete && (
-          <div className="card success-card">
-            <div className="success-animation">✅</div>
-            <h2>¡PIN Reseteado Correctamente!</h2>
+        {/* PASO 4: Confirmar y finalizar */}
+        {step === 4 && (
+          <div className="card">
+            <div className="card-title">
+              <span className="step-number">4</span>
+              <h2>Confirma los datos</h2>
+            </div>
+            <p className="card-text">
+              Revisa que todo esté correcto antes de continuar
+            </p>
 
-            <div className="success-message">
-              <p>Tu PIN ha sido cambiado exitosamente.</p>
-              <p>Ahora puedes iniciar sesión con tu nuevo PIN.</p>
+            <div className="confirm-box">
+              <div className="confirm-row">
+                <span>Usuario:</span>
+                <strong>{username}</strong>
+              </div>
+              <div className="confirm-row">
+                <span>Nuevo PIN:</span>
+                <strong>{'•'.repeat(4)}</strong>
+              </div>
+              <div className="confirm-row">
+                <span>Código de reseteo:</span>
+                <strong>{resetCode}</strong>
+              </div>
             </div>
 
-            <div className="next-steps-box">
-              <h3>📋 ¿Qué hacer ahora?</h3>
-              <ol>
-                <li>Memoriza tu nuevo PIN</li>
-                <li>Guarda este PIN en un lugar seguro</li>
-                <li>Inicia sesión con tu nuevo PIN</li>
-                <li>Opcional: Ve a Configuración y cámbialo por uno que tú elijas</li>
-              </ol>
-            </div>
+            <form onSubmit={handleResetComplete} className="form">
+              <div className="form-group">
+                <label>Clave de Administrador</label>
+                <input
+                  type="password"
+                  value={adminKey}
+                  onChange={(e) => setAdminKey(e.target.value)}
+                  placeholder="Pega la clave aquí"
+                  className="big-input"
+                  required
+                />
+                <small>Pide a tu familiar la clave de administrador</small>
+              </div>
 
-            <div className="button-group">
-              <button onClick={() => navigate('/login')} className="btn-primary">
-                🚀 Ir al Login
-              </button>
-              <button onClick={startOver} className="btn-secondary">
-                🔄 Ayudar a otro usuario
-              </button>
-            </div>
+              {message && <div className="message error">{message}</div>}
+
+              <div className="button-group">
+                <button type="button" onClick={() => setStep(3)} className="btn-secondary">
+                  ← Atrás
+                </button>
+                <button type="submit" className="btn-success" disabled={loading}>
+                  {loading ? '⏳ Procesando...' : '✅ Confirmar y Cambiar'}
+                </button>
+              </div>
+            </form>
           </div>
         )}
 
-        {/* Footer help */}
-        <div className="help-footer">
-          <p>¿Necesitas ayuda adicional?</p>
-          <p>Contacta a un familiar o al administrador del sistema</p>
+        {/* PASO 5: ¡Listo! */}
+        {step === 5 && (
+          <div className="card success-card">
+            <div className="success-icon">🎉</div>
+            <h2>¡PIN Cambiado!</h2>
+
+            <div className="success-message">
+              <p>Tu nuevo PIN está listo.</p>
+              <p>Ya puedes entrar al sistema.</p>
+            </div>
+
+            <div className="next-steps">
+              <h3>📋 Recuerda:</h3>
+              <ul>
+                <li>Memoriza tu nuevo PIN</li>
+                <li>Si lo olvidas, puedes volver a cambiarlo aquí</li>
+                <li>Guarda este PIN en un lugar seguro</li>
+              </ul>
+            </div>
+
+            <button onClick={() => navigate('/login')} className="btn-primary big-button">
+              🚀 Ir al Login
+            </button>
+
+            <button onClick={startOver} className="btn-link">
+              Cambiar otro PIN
+            </button>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="footer">
+          <p>¿Necesitas ayuda? Contacta a un familiar</p>
         </div>
       </div>
     </div>
