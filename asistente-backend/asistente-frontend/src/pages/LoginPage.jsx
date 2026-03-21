@@ -269,9 +269,17 @@ function LoginPage({ onLogin }) {
 
         {/* Ayuda adicional */}
         <div className="mt-8 text-center">
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-600 mb-3">
             ¿Necesitas ayuda? Pide a un familiar que te asista.
           </p>
+          {!isRegister && (
+            <button
+              onClick={() => navigate('/forgot-pin')}
+              className="text-lg text-blue-600 font-semibold hover:text-blue-800 underline"
+            >
+              🔐 ¿Olvidaste tu PIN?
+            </button>
+          )}
         </div>
       </div>
     </div>

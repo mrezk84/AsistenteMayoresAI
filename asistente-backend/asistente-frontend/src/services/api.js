@@ -156,6 +156,39 @@ class ApiClient {
     return this.fetch('/auth/me');
   }
 
+  /**
+   * Cambia el PIN del usuario (requiere PIN actual)
+   */
+  async changePin(currentPin, newPin) {
+    return this.fetch('/auth/change-pin', {
+      method: 'POST',
+      body: JSON.stringify({
+        current_pin: currentPin,
+        new_pin: newPin
+      }),
+    });
+  }
+
+  /**
+   * Solicita reseteo de PIN cuando se olvidó
+   */
+  async requestPinReset(username) {
+    return this.fetch('/auth/reset-pin-request', {
+      method: 'POST',
+      body: JSON.stringify({ username }),
+    });
+  }
+
+  /**
+   * Desbloquea la cuenta del usuario actual
+   */
+  async unlockAccount() {
+    return this.fetch('/auth/unlock', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  }
+
   // ============================================
   // ENDPOINTS DE CONVERSACIONES
   // ============================================

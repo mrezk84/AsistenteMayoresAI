@@ -24,7 +24,8 @@ from models import (
     User, PDFDocument, Conversation, Message,
     ConversationCreate, ConversationResponse,
     ChatRequest, ChatResponse, MessageResponse,
-    RegisterRequest, LoginRequest, LoginResponse, UserResponse
+    RegisterRequest, LoginRequest, LoginResponse, UserResponse,
+    ChangePinRequest, ResetPinRequest, ResetPinAdminRequest
 )
 from auth import create_access_token, verify_token as verify_jwt_token, create_refresh_token
 
@@ -227,6 +228,141 @@ def logout_user():
     En el frontend, simplemente se elimina el token almacenado.
     """
     return {"message": "Sesión cerrada correctamente"}
+
+
+@app.post("/auth/change-pin")
+def change_pin(
+    request: ChangePinRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Cambia el PIN del usuario.
+    Requiere conocer el PIN actual por seguridad.
+    """
+    user = db.query(User).filter(User.id == current_user["user_id"]).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+
+    # Verificar que el PIN actual sea correcto
+    if not user.verify_pin(request.current_pin):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Tu PIN actual es incorrecto"
+        )
+
+    # Validar el nuevo PIN
+    if not request.new_pin.isdigit() or len(request.new_pin) != 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El nuevo PIN debe ser 4 números"
+        )
+
+    # Actualizar el PIN
+    user.pin_hash = User.hash_pin(request.new_pin)
+    db.commit()
+
+    return {"message": "PIN cambiado correctamente"}
+
+
+@app.post("/auth/reset-pin-request")
+def request_pin_reset(
+    request: ResetPinRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Solicita resetear el PIN cuando se olvidó.
+    Para personas mayores, esto genera un código que un familiar/admin puede usar.
+    """
+    user = db.query(User).filter(User.username == request.username).first()
+    if not user:
+        # No revelamos si el usuario existe por seguridad
+        return {
+            "message": "Si el código existe, contacta a tu familiar o administrador",
+            "reset_code": f"RESET_{user.id if user else 'XXX'}_{uuid.uuid4().hex[:8].upper()}"
+        }
+
+    # Generar código de reset (en producción, esto se enviaría por email/SMS al familiar)
+    reset_code = f"RESET_{user.id}_{uuid.uuid4().hex[:8].upper()}"
+
+    return {
+        "message": "Contacta a tu familiar o administrador con este código",
+        "reset_code": reset_code,
+        "user_full_name": user.full_name
+    }
+
+
+@app.post("/auth/reset-pin-admin")
+def reset_pin_admin(
+    request: ResetPinAdminRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Permite a un administrador resetear el PIN de un usuario.
+    Requiere una clave de administrador.
+    """
+    # Verificar la clave de administrador (en producción, usar variable de entorno)
+    ADMIN_KEY = os.getenv("ADMIN_RESET_KEY", "admin-2024-reset")
+    if request.admin_key != ADMIN_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Clave de administrador incorrecta"
+        )
+
+    # Buscar el usuario
+    user = db.query(User).filter(User.username == request.username).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+
+    # Validar el nuevo PIN
+    if not request.new_pin.isdigit() or len(request.new_pin) != 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El PIN debe ser 4 números"
+        )
+
+    # Resetear PIN y desbloquear cuenta
+    user.pin_hash = User.hash_pin(request.new_pin)
+    user.failed_attempts = 0
+    user.locked_until = None
+    db.commit()
+
+    return {
+        "message": f"PIN de {user.full_name} reseteado correctamente",
+        "username": user.username,
+        "full_name": user.full_name
+    }
+
+
+@app.post("/auth/unlock")
+def unlock_account(
+    request: ResetPinRequest,  # Reutilizamos el modelo que tiene username
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Desbloquea la cuenta del usuario autenticado.
+    Solo puede desbloquear su propia cuenta.
+    """
+    user = db.query(User).filter(User.id == current_user["user_id"]).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+
+    # Desbloquear cuenta
+    user.failed_attempts = 0
+    user.locked_until = None
+    db.commit()
+
+    return {"message": "Cuenta desbloqueada. Ahora puedes intentar ingresar nuevamente"}
 
 
 @app.get("/auth/check")

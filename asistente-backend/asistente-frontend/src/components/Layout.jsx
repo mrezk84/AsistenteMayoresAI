@@ -69,6 +69,17 @@ function Layout({ children, user, onLogout }) {
                 >
                   📋 Historial
                 </Link>
+                <Link
+                  to="/settings"
+                  className={`px-5 py-2.5 rounded-xl text-lg font-medium transition-all ${
+                    isActive('/settings')
+                      ? 'bg-blue-100 text-blue-700 shadow-sm'
+                      : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+                  }`}
+                  aria-label="Configuración"
+                >
+                  ⚙️ Configuración
+                </Link>
               </div>
             </div>
 
@@ -136,6 +147,15 @@ function Layout({ children, user, onLogout }) {
             >
               <span className="text-2xl">📋</span>
               <span className="text-sm font-medium mt-1">Historial</span>
+            </Link>
+            <Link
+              to="/settings"
+              className={`flex flex-col items-center px-4 py-2 rounded-xl transition-all ${
+                isActive('/settings') ? 'text-blue-600 bg-blue-50' : 'text-gray-500'
+              }`}
+            >
+              <span className="text-2xl">⚙️</span>
+              <span className="text-sm font-medium mt-1">Ajustes</span>
             </Link>
           </div>
         </div>

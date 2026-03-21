@@ -187,3 +187,23 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ChangePinRequest(BaseModel):
+    """Request para cambiar el PIN (requiere PIN actual)"""
+    current_pin: str
+    new_pin: str
+
+
+class ResetPinRequest(BaseModel):
+    """Request para resetear el PIN cuando se olvidó"""
+    username: str
+    # En una versión completa, aquí iría una respuesta a pregunta de seguridad
+    # o verificación por correo/teléfono de un familiar
+
+
+class ResetPinAdminRequest(BaseModel):
+    """Request para que un admin resetee el PIN de un usuario"""
+    username: str
+    new_pin: str
+    admin_key: str  # Clave de administrador para evitar abusos

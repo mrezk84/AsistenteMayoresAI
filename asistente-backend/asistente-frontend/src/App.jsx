@@ -6,6 +6,8 @@ import ChatPage from './pages/ChatPage';
 import UploadPage from './pages/UploadPage';
 import HistoryPage from './pages/HistoryPage';
 import LoginPage from './pages/LoginPage';
+import SettingsPage from './pages/SettingsPage';
+import ForgotPinPage from './pages/ForgotPinPage';
 import { isAuthenticated, getUserData } from './services/api';
 
 /**
@@ -54,6 +56,9 @@ function App() {
           }
         />
 
+        {/* Ruta de recuperación de PIN (pública) */}
+        <Route path="/forgot-pin" element={<ForgotPinPage />} />
+
         {/* Rutas protegidas (requieren autenticación) */}
         <Route
           path="/"
@@ -81,6 +86,16 @@ function App() {
             <ProtectedRoute>
               <Layout user={user} onLogout={handleLogout}>
                 <HistoryPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <SettingsPage />
               </Layout>
             </ProtectedRoute>
           }
