@@ -314,9 +314,6 @@ def get_conversations(
 ):
     """Lista todas las conversaciones del usuario autenticado"""
     query = db.query(Conversation).filter(Conversation.user_id == current_user["user_id"])
-        else:
-            return []
-
     return query.order_by(Conversation.updated_at.desc()).all()
 
 
