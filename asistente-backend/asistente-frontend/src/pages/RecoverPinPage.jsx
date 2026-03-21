@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import './RecoverPinPage.css';
 
-// Imagen de fondo
-const BACKGROUND_IMAGE = "https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&q=80";
+// Imagen de fondo - Unsplash (color cálido para personas mayores)
+const BACKGROUND_IMAGE = "https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=1920&q=80";
 
 export default function RecoverPinPage() {
   const [step, setStep] = useState(1);

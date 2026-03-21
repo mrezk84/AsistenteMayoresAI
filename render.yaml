@@ -1,7 +1,7 @@
 services:
   - type: web
     name: asistente-mayores-backend
-    env: python
+    runtime: python
     repo: https://github.com/mrezk84/AsistenteMayoresAI
     rootDir: asistente-backend
     region: ohio
@@ -12,8 +12,18 @@ services:
       - key: PYTHON_VERSION
         value: 3.12.0
       - key: GEMINI_API_KEY
-        sync: false # Must be set in Render dashboard
+        sync: false
       - key: API_SECRET_TOKEN
         value: "asistente-mayores-token-2024"
       - key: JWT_SECRET
-        sync: false # Must be set in Render dashboard - use a strong secret in production
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: asistente-mayores-db
+          property: connectionString
+
+databases:
+  - name: asistente-mayores-db
+    databaseName: asistente_mayores
+    user: asistente_mayores_user
+    plan: free
