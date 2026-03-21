@@ -8,3 +8,4 @@ python-dotenv
 sqlalchemy
 pydantic
 gunicorn
+PyJWT

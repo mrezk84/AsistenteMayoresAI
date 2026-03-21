@@ -22,5 +22,8 @@ export const STORAGE_KEYS = {
   DEVICE_ID: 'asistente_device_id',
   VOICE_ENABLED: 'asistente_voice_enabled',
   CURRENT_CONVERSATION: 'asistente_current_conversation',
-  USER_PREFERENCES: 'asistente_user_preferences'
+  USER_PREFERENCES: 'asistente_user_preferences',
+  AUTH_TOKEN: 'asistente_auth_token',
+  USER_DATA: 'asistente_user_data',
+  REFRESH_TOKEN: 'asistente_refresh_token'
 };

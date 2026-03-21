@@ -26,18 +26,17 @@ jobs:
               with:
                   node-version: 20
                   cache: "npm"
-                  cache-dependency-path: asistente-frontend/package-lock.json
+                  cache-dependency-path: asistente-backend/asistente-frontend/package-lock.json
 
             - name: Install dependencies
               run: npm ci
-              working-directory: ./asistente-frontend
+              working-directory: ./asistente-backend/asistente-frontend
 
             - name: Build
               run: npm run build
-              working-directory: ./asistente-frontend
+              working-directory: ./asistente-backend/asistente-frontend
               env:
                   VITE_API_URL: "https://asistente-mayores-backend.onrender.com"
-                  VITE_API_TOKEN: "asistente-mayores-token-2024"
 
             - name: Setup Pages
               uses: actions/configure-pages@v5
@@ -45,7 +44,7 @@ jobs:
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
-                  path: "./asistente-frontend/dist"
+                  path: "./asistente-backend/asistente-frontend/dist"
 
     deploy:
         environment:

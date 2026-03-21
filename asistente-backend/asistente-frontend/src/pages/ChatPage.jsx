@@ -1,12 +1,14 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { useChat } from '../hooks/useChat';
 import ChatInterface from '../components/ChatInterface';
+import { getUserData } from '../services/api';
 
 /**
  * Página principal de chat
  * Maneja la lógica de conversación y muestra la interfaz de chat
  */
 function ChatPage() {
+  const userData = getUserData();
   const {
     currentConversation,
     messages,
@@ -64,6 +66,7 @@ function ChatPage() {
         loading={loading}
         onSendMessage={handleSendMessage}
         onNewConversation={handleNewConversation}
+        userName={userData?.full_name || ''}
       />
 
       {/* Notificación de error */}

@@ -1,5 +1,38 @@
 import { API_BASE_URL, STORAGE_KEYS } from '../utils/constants';
 
+// ============================================
+// GESTIÓN DE AUTENTICACIÓN
+// ============================================
+
+// Guardar token y datos de usuario
+export const saveAuthData = (token, userData) => {
+  localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
+  localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(userData));
+};
+
+// Limpiar datos de autenticación
+export const clearAuthData = () => {
+  localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+  localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+  localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+};
+
+// Obtener token almacenado
+export const getAuthToken = () => {
+  return localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+};
+
+// Obtener datos del usuario almacenado
+export const getUserData = () => {
+  const data = localStorage.getItem(STORAGE_KEYS.USER_DATA);
+  return data ? JSON.parse(data) : null;
+};
+
+// Verificar si hay usuario autenticado
+export const isAuthenticated = () => {
+  return !!getAuthToken();
+};
+
 // Obtener o generar device_id único para este dispositivo
 const getDeviceId = () => {
   let deviceId = localStorage.getItem(STORAGE_KEYS.DEVICE_ID);
@@ -20,13 +53,16 @@ class ApiClient {
   }
 
   /**
-   * Helper para hacer fetch con manejo de errores
+   * Helper para hacer fetch con manejo de errores y autenticación
    */
   async fetch(endpoint, options = {}) {
     const url = `${this.baseUrl}${endpoint}`;
+    const token = getAuthToken();
+
     const defaultOptions = {
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
       },
     };
 
@@ -45,35 +81,87 @@ class ApiClient {
     }
   }
 
-  /**
-   * Subir un PDF
-   */
-  async uploadPDF(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('device_id', this.deviceId);
+  // ============================================
+  // ENDPOINTS DE AUTENTICACIÓN
+  // ============================================
 
-    const response = await fetch(`${this.baseUrl}/pdfs/upload`, {
+  /**
+   * Registra un nuevo usuario
+   */
+  async register(username, fullName, pin) {
+    return this.fetch('/auth/register', {
       method: 'POST',
-      body: formData,
+      body: JSON.stringify({
+        username: username.toUpperCase(),
+        full_name: fullName,
+        pin: pin
+      }),
+    });
+  }
+
+  /**
+   * Inicia sesión
+   */
+  async login(username, pin, rememberDevice = true) {
+    const response = await this.fetch('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: username.toUpperCase(),
+        pin: pin,
+        remember_device: rememberDevice
+      }),
     });
 
-    if (!response.ok) {
-      throw new Error('Error al subir el PDF');
+    // Guardar datos de autenticación
+    if (response.success) {
+      saveAuthData(response.token, {
+        user_id: response.user_id,
+        username: response.username,
+        full_name: response.full_name
+      });
     }
 
-    return await response.json();
+    return response;
   }
 
   /**
-   * Obtener o crear usuario por device_id
+   * Cierra sesión
    */
-  async getOrCreateUser() {
-    return this.fetch(`/users/device/${this.deviceId}`);
+  async logout() {
+    try {
+      await this.fetch('/auth/logout', { method: 'POST' });
+    } finally {
+      clearAuthData();
+    }
   }
 
   /**
-   * Obtener todas las conversaciones del dispositivo actual
+   * Verifica si hay una sesión activa
+   */
+  async checkAuth() {
+    try {
+      const response = await this.fetch('/auth/check');
+      return response.authenticated ? response : null;
+    } catch (error) {
+      // Si hay error, probablemente el token expiró
+      clearAuthData();
+      return null;
+    }
+  }
+
+  /**
+   * Obtiene información del usuario actual
+   */
+  async getMe() {
+    return this.fetch('/auth/me');
+  }
+
+  // ============================================
+  // ENDPOINTS DE CONVERSACIONES
+  // ============================================
+
+  /**
+   * Obtener todas las conversaciones del usuario actual
    */
   async getConversations() {
     return this.fetch(`/conversations/?device_id=${this.deviceId}`);
@@ -128,6 +216,10 @@ class ApiClient {
     });
   }
 
+  // ============================================
+  // ENDPOINTS DE CHAT
+  // ============================================
+
   /**
    * Enviar un mensaje en una conversación
    */
@@ -141,14 +233,54 @@ class ApiClient {
     });
   }
 
+  // ============================================
+  // ENDPOINTS DE PDF
+  // ============================================
+
+  /**
+   * Subir un PDF
+   */
+  async uploadPDF(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('device_id', this.deviceId);
+
+    const response = await fetch(`${this.baseUrl}/pdfs/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al subir el PDF');
+    }
+
+    return await response.json();
+  }
+
   /**
    * Obtener PDFs del usuario
    */
   async getUserPDFs() {
-    // Primero obtenemos el user_id
-    const user = await this.getOrCreateUser();
-    return this.fetch(`/pdfs/user/${user.id}`);
+    const userData = getUserData();
+    if (!userData) return [];
+
+    return this.fetch(`/pdfs/user/${userData.user_id}`);
   }
+
+  // ============================================
+  // ENDPOINTS LEGADOS (para compatibilidad)
+  // ============================================
+
+  /**
+   * Obtener o crear usuario por device_id (LEGADO)
+   */
+  async getOrCreateUser() {
+    return this.fetch(`/users/device/${this.deviceId}`);
+  }
+
+  // ============================================
+  // HEALTH CHECK
+  // ============================================
 
   /**
    * Health check

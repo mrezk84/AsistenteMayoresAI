@@ -5,5 +5,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000
+  },
+  base: '/AsistenteMayoresAI/', // Base path para GitHub Pages
+  build: {
+    outDir: 'dist',
+    sourcemap: true
   }
 });

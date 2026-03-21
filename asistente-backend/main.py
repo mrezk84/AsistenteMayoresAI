@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -23,8 +23,10 @@ from database import get_db, init_db
 from models import (
     User, PDFDocument, Conversation, Message,
     ConversationCreate, ConversationResponse,
-    ChatRequest, ChatResponse, MessageResponse
+    ChatRequest, ChatResponse, MessageResponse,
+    RegisterRequest, LoginRequest, LoginResponse, UserResponse
 )
+from auth import create_access_token, verify_token as verify_jwt_token, create_refresh_token
 
 app = FastAPI(title="Asistente para Personas Mayores API")
 
@@ -58,6 +60,189 @@ async def startup_event():
 
 
 # ============================================
+# AUTENTICACIÓN DE USUARIOS
+# ============================================
+
+def get_current_user_optional(credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False))) -> Optional[dict]:
+    """Obtiene el usuario actual si hay token, None si no lo hay"""
+    if not credentials:
+        return None
+    token = credentials.credentials
+    payload = verify_jwt_token(token)
+    return payload
+
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())) -> dict:
+    """Obtiene el usuario actual (requiere token válido)"""
+    token = credentials.credentials
+    payload = verify_jwt_token(token)
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado"
+        )
+    return payload
+
+
+@app.post("/auth/register", response_model=UserResponse)
+def register_user(
+    request: RegisterRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Registra un nuevo usuario con un PIN de 4 dígitos.
+
+    Para personas mayores, usamos:
+    - username: Un código corto y fácil de recordar (ej: "MARIA01")
+    - PIN: 4 dígitos numéricos (más fácil que contraseñas complejas)
+    """
+    # Validar que el PIN sea de 4 dígitos numéricos
+    if not request.pin.isdigit() or len(request.pin) != 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El PIN debe ser exactamente 4 números"
+        )
+
+    # Verificar que el username no exista
+    existing_user = db.query(User).filter(User.username == request.username).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Este código de usuario ya existe. Por favor, elige otro."
+        )
+
+    # Crear el nuevo usuario
+    new_user = User(
+        username=request.username,
+        full_name=request.full_name,
+        pin_hash=User.hash_pin(request.pin),
+        is_active=True
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
+
+
+@app.post("/auth/login", response_model=LoginResponse)
+def login_user(
+    request: LoginRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Inicia sesión con username y PIN.
+
+    Para personas mayores, este sistema es más simple:
+    - No necesitan recordar contraseñas complejas
+    - El PIN es fácil de ingresar
+    - Se bloquea temporalmente tras 5 intentos fallidos
+    """
+    # Buscar el usuario
+    user = db.query(User).filter(User.username == request.username).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Código o PIN incorrecto"
+        )
+
+    # Verificar si la cuenta está bloqueada
+    if user.is_locked():
+        if user.locked_until:
+            minutes_left = int((user.locked_until - datetime.utcnow()).total_seconds() / 60) + 1
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Cuenta temporalmente bloqueada. Intenta en {minutes_left} minutos."
+            )
+        else:
+            # Si no hay locked_until pero failed_attempts >= 5, establecer bloqueo
+            from datetime import timedelta
+            user.locked_until = datetime.utcnow() + timedelta(minutes=30)
+            db.commit()
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Cuenta temporalmente bloqueada. Intenta en 30 minutos."
+            )
+
+    # Verificar el PIN
+    if not user.verify_pin(request.pin):
+        user.record_failed_attempt()
+        db.commit()
+
+        attempts_left = 5 - (user.failed_attempts or 0)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"PIN incorrecto. Te quedan {attempts_left} intentos."
+        )
+
+    # Resetear intentos fallidos y actualizar último login
+    user.reset_failed_attempts()
+    db.commit()
+
+    # Crear token de acceso
+    token_expires = 72 if request.remember_device else 24  # 72 horas si recordamos, 24 si no
+    access_token = create_access_token(
+        user_id=user.id,
+        username=user.username,
+        full_name=user.full_name,
+        expires_hours=token_expires
+    )
+
+    # Crear refresh token si se seleccionó "recordar"
+    refresh_token = None
+    if request.remember_device:
+        refresh_token = create_refresh_token(user.id)
+
+    return LoginResponse(
+        success=True,
+        user_id=user.id,
+        username=user.username,
+        full_name=user.full_name,
+        token=access_token,
+        message=f"¡Hola {user.full_name}! Bienvenido de nuevo."
+    )
+
+
+@app.get("/auth/me", response_model=UserResponse)
+def get_current_user_info(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Obtiene información del usuario autenticado"""
+    user = db.query(User).filter(User.id == current_user["user_id"]).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+    return user
+
+
+@app.post("/auth/logout")
+def logout_user():
+    """
+    Cierra la sesión del usuario.
+    En el frontend, simplemente se elimina el token almacenado.
+    """
+    return {"message": "Sesión cerrada correctamente"}
+
+
+@app.get("/auth/check")
+def check_auth(current_user: Optional[dict] = Depends(get_current_user_optional)):
+    """Verifica si hay una sesión activa"""
+    if current_user:
+        return {
+            "authenticated": True,
+            "user_id": current_user.get("user_id"),
+            "username": current_user.get("username"),
+            "full_name": current_user.get("full_name")
+        }
+    return {"authenticated": False}
+
+
+# ============================================
 # ENDPOINTS ORIGINALES (Mantenidos por compatibilidad)
 # ============================================
 
@@ -88,7 +273,7 @@ async def ask_question(question: str = Form(...), token: str = Depends(verify_to
 
 @app.get("/users/device/{device_id}", response_model=None)
 def get_or_create_user(device_id: str, db: Session = Depends(get_db), token: str = Depends(verify_token)):
-    """Obtiene o crea un usuario por device_id"""
+    """Obtiene o crea un usuario por device_id (DEPRECATED - usar /auth/login)"""
     user = db.query(User).filter(User.device_id == device_id).first()
     if not user:
         user = User(device_id=device_id, username=f"guest_{device_id[:8]}")
