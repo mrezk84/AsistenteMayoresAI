@@ -118,7 +118,7 @@ function LoginPage({ onLogin }) {
         )}
 
         {/* Tarjeta de login/registro */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
+        <div className="glass-card rounded-3xl shadow-2xl p-8 md:p-12">
           {/* Instrucciones */}
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-8">
             <div className="flex items-start">
