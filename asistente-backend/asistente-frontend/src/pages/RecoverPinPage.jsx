@@ -119,9 +119,6 @@ export default function RecoverPinPage() {
       className="recover-page"
       style={{ backgroundImage: `url(${BACKGROUND_IMAGE})` }}
     >
-      {/* Overlay oscuro para mejor legibilidad */}
-      <div className="page-overlay"></div>
-
       <div className="recover-container">
         {/* Header */}
         <div className="recover-header">

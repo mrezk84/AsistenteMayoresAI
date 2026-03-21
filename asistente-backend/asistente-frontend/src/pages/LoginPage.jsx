@@ -88,17 +88,14 @@ function LoginPage({ onLogin }) {
       className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4"
       style={{ backgroundImage: `url(${BACKGROUND_IMAGE})` }}
     >
-      {/* Overlay oscuro para mejor legibilidad */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/70 to-purple-900/70"></div>
-
       <div className="w-full max-w-2xl relative z-10">
         {/* Logo y título */}
         <div className="text-center mb-8">
           <div className="text-7xl mb-4 animate-bounce">👋</div>
-          <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">
             Asistente para Personas Mayores
           </h1>
-          <p className="text-xl text-white/90 drop-shadow-md">
+          <p className="text-xl text-gray-700">
             {isRegister ? 'Crea tu cuenta personal' : 'Bienvenido de nuevo'}
           </p>
         </div>
@@ -114,7 +111,7 @@ function LoginPage({ onLogin }) {
               <span>¿Olvidaste tu PIN?</span>
               <span className="text-4xl">❓</span>
             </button>
-            <p className="text-center text-lg text-white/90 mt-3 font-medium drop-shadow-md">
+            <p className="text-center text-lg text-gray-700 mt-3 font-medium">
               Presiona aquí si no recuerdas tu PIN para entrar
             </p>
           </div>
