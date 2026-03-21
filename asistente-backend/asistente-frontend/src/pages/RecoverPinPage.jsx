@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import './RecoverPinPage.css';
 
-// Imagen de fondo - Unsplash (colores cálidos, naturaleza, relajante)
-const BACKGROUND_IMAGE = "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80";
+// Imagen de fondo - Imagen personalizada desde GitHub Releases
+const BACKGROUND_IMAGE = "https://github.com/mrezk84/AsistenteMayoresAI/releases/download/v1.0.0-assets/IMG_7689.PNG";
 
 export default function RecoverPinPage() {
   const [step, setStep] = useState(1);

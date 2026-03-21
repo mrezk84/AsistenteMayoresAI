@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 
-// URL de la imagen de fondo - Unsplash (colores cálidos, montañas, relajante)
-const BACKGROUND_IMAGE = "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80";
+// URL de la imagen de fondo - Imagen personalizada desde GitHub Releases
+const BACKGROUND_IMAGE = "https://github.com/mrezk84/AsistenteMayoresAI/releases/download/v1.0.0-assets/IMG_7689.PNG";
 
 /**
  * Página de Login diseñada para personas mayores
