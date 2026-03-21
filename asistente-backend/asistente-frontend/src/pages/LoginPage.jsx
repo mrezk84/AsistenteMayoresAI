@@ -94,6 +94,23 @@ function LoginPage({ onLogin }) {
           </p>
         </div>
 
+        {/* BOTÓN DESTACADO - ¿Olvidaste tu PIN? */}
+        {!isRegister && (
+          <div className="mb-6">
+            <button
+              onClick={() => navigate('/recover-pin')}
+              className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-6 px-8 rounded-2xl text-2xl font-bold shadow-lg hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105 animate-pulse-slow flex items-center justify-center gap-4"
+            >
+              <span className="text-4xl">🔐</span>
+              <span>¿Olvidaste tu PIN?</span>
+              <span className="text-4xl">❓</span>
+            </button>
+            <p className="text-center text-lg text-gray-700 mt-3 font-medium">
+              Presiona aquí si no recuerdas tu PIN para entrar
+            </p>
+          </div>
+        )}
+
         {/* Tarjeta de login/registro */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
           {/* Instrucciones */}
@@ -265,21 +282,6 @@ function LoginPage({ onLogin }) {
               {isRegister ? 'Inicia sesión aquí' : 'Crea tu cuenta aquí'}
             </button>
           </div>
-        </div>
-
-        {/* Ayuda adicional */}
-        <div className="mt-8 text-center">
-          <p className="text-lg text-gray-600 mb-3">
-            ¿Necesitas ayuda? Pide a un familiar que te asista.
-          </p>
-          {!isRegister && (
-            <button
-              onClick={() => navigate('/recover-pin')}
-              className="text-lg text-blue-600 font-semibold hover:text-blue-800 underline"
-            >
-              🔐 ¿Olvidaste tu PIN?
-            </button>
-          )}
         </div>
       </div>
     </div>
