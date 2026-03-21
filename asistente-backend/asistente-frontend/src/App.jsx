@@ -7,7 +7,7 @@ import UploadPage from './pages/UploadPage';
 import HistoryPage from './pages/HistoryPage';
 import LoginPage from './pages/LoginPage';
 import SettingsPage from './pages/SettingsPage';
-import ForgotPinPage from './pages/ForgotPinPage';
+import RecoverPinPage from './pages/RecoverPinPage';
 import { isAuthenticated, getUserData } from './services/api';
 
 /**
@@ -57,7 +57,7 @@ function App() {
         />
 
         {/* Ruta de recuperación de PIN (pública) */}
-        <Route path="/forgot-pin" element={<ForgotPinPage />} />
+        <Route path="/recover-pin" element={<RecoverPinPage />} />
 
         {/* Rutas protegidas (requieren autenticación) */}
         <Route

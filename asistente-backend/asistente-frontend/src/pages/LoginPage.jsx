@@ -274,7 +274,7 @@ function LoginPage({ onLogin }) {
           </p>
           {!isRegister && (
             <button
-              onClick={() => navigate('/forgot-pin')}
+              onClick={() => navigate('/recover-pin')}
               className="text-lg text-blue-600 font-semibold hover:text-blue-800 underline"
             >
               🔐 ¿Olvidaste tu PIN?
