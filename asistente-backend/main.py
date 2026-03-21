@@ -60,6 +60,18 @@ async def startup_event():
     init_db()
 
 
+# Endpoint para inicializar BD manualmente (útil para PostgreSQL nuevo)
+@app.post("/admin/init-db")
+def init_database_manually(db: Session = Depends(get_db)):
+    """Inicializa todas las tablas de la base de datos"""
+    from database import Base, engine
+    try:
+        Base.metadata.create_all(bind=engine)
+        return {"message": "Base de datos inicializada correctamente", "tables": list(Base.metadata.tables.keys())}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
 # ============================================
 # AUTENTICACIÓN DE USUARIOS
 # ============================================
