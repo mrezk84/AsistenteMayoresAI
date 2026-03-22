@@ -94,7 +94,7 @@ function LoginPage({ onLogin }) {
 
           {/* COLUMNA IZQUIERDA - Logo y título */}
           <div className="flex-1 text-center lg:text-left">
-            <div className="text-7xl mb-4 animate-bounce">👋</div>
+            <span className="text-7xl mb-4 animate-bounce inline-block">👋</span>
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-800 mb-3">
               Asistente para Personas Mayores
             </h1>
@@ -278,25 +278,26 @@ function LoginPage({ onLogin }) {
               {isRegister ? 'Inicia sesión aquí' : 'Crea tu cuenta aquí'}
             </button>
           </div>
-        </div>
-        </div>
 
-        {/* BOTÓN ¿Olvidaste tu PIN? - Abajo del formulario */}
-        {!isRegister && (
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => navigate('/recover-pin')}
-              className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-4 px-8 rounded-2xl text-xl font-bold shadow-lg hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105 animate-pulse-slow flex items-center justify-center gap-3 mx-auto"
-            >
-              <span className="text-3xl">🔐</span>
-              <span>¿Olvidaste tu PIN?</span>
-              <span className="text-3xl">❓</span>
-            </button>
-            <p className="text-lg text-gray-700 mt-3 font-medium">
-              Presiona aquí si no recuerdas tu PIN para entrar
-            </p>
+          {/* BOTÓN ¿Olvidaste tu PIN? - Abajo del formulario */}
+          {!isRegister && (
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => navigate('/recover-pin')}
+                className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-4 px-8 rounded-2xl text-xl font-bold shadow-lg hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105 animate-pulse-slow flex items-center justify-center gap-3 mx-auto"
+              >
+                <span className="text-3xl">🔐</span>
+                <span>¿Olvidaste tu PIN?</span>
+                <span className="text-3xl">❓</span>
+              </button>
+              <p className="text-lg text-gray-700 mt-3 font-medium">
+                Presiona aquí si no recuerdas tu PIN para entrar
+              </p>
+            </div>
+          )}
           </div>
-        )}
+        </div>
+        </div>
       </div>
     </div>
   );
