@@ -86,8 +86,16 @@ function LoginPage({ onLogin }) {
   return (
     <div
       className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4"
-      style={{ backgroundImage: `url(${BACKGROUND_IMAGE})` }}
+      style={{
+        backgroundImage: `url(${BACKGROUND_IMAGE})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
     >
+      {/* Overlay suave para mejorar legibilidad */}
+      <div className="absolute inset-0 bg-black/20"></div>
+
       <div className="w-full max-w-6xl relative z-10">
         {/* Contenedor de dos columnas */}
         <div className="flex flex-col lg:flex-row gap-8 items-center">
