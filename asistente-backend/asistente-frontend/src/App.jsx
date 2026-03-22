@@ -8,6 +8,10 @@ import HistoryPage from './pages/HistoryPage';
 import LoginPage from './pages/LoginPage';
 import SettingsPage from './pages/SettingsPage';
 import RecoverPinPage from './pages/RecoverPinPage';
+import MedicationPage from './pages/MedicationPage';
+import HealthPage from './pages/HealthPage';
+import MusicPage from './pages/MusicPage';
+import InfoPage from './pages/InfoPage';
 import { isAuthenticated, getUserData } from './services/api';
 
 /**
@@ -66,6 +70,46 @@ function App() {
             <ProtectedRoute>
               <Layout user={user} onLogout={handleLogout}>
                 <ChatPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/medication"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <MedicationPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/health"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <HealthPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/music"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <MusicPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/info"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <InfoPage />
               </Layout>
             </ProtectedRoute>
           }

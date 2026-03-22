@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import { IMAGES, BACKGROUND_STYLES } from '../config/images';
 
 /**
  * Componente de layout principal con navegación
  * Proporciona una barra de navegación accesible
+ * Con imagen de fondo personalizada y funcionalidades para adultos mayores
  */
 function Layout({ children, user, onLogout }) {
   const location = useLocation();
@@ -22,7 +24,11 @@ function Layout({ children, user, onLogout }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col">
+    <div className="min-h-screen flex flex-col relative" style={BACKGROUND_STYLES}>
+      {/* Overlay suave para mejorar legibilidad */}
+      <div className="absolute inset-0 bg-black/10 pointer-events-none"></div>
+
+      <div className="relative z-10 flex flex-col min-h-screen">
       {/* Navegación principal */}
       <nav className="bg-white shadow-lg border-b border-blue-100" role="navigation" aria-label="Navegación principal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,32 +44,76 @@ function Layout({ children, user, onLogout }) {
               <div className="hidden md:flex gap-2">
                 <Link
                   to="/"
-                  className={`px-5 py-2.5 rounded-xl text-lg font-medium transition-all ${
+                  className={`px-4 py-2.5 rounded-xl text-lg font-medium transition-all ${
                     isActive('/')
                       ? 'bg-blue-100 text-blue-700 shadow-sm'
-                      : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                   }`}
                   aria-label="Ir al chat"
                 >
                   💬 Chat
                 </Link>
                 <Link
+                  to="/medication"
+                  className={`px-4 py-2.5 rounded-xl text-lg font-medium transition-all ${
+                    isActive('/medication')
+                      ? 'bg-blue-100 text-blue-700 shadow-sm'
+                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                  }`}
+                  aria-label="Recordatorios de medicación"
+                >
+                  💊 Medicación
+                </Link>
+                <Link
+                  to="/health"
+                  className={`px-4 py-2.5 rounded-xl text-lg font-medium transition-all ${
+                    isActive('/health')
+                      ? 'bg-blue-100 text-blue-700 shadow-sm'
+                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                  }`}
+                  aria-label="Consejos de salud"
+                >
+                  🏥 Salud
+                </Link>
+                <Link
+                  to="/music"
+                  className={`px-4 py-2.5 rounded-xl text-lg font-medium transition-all ${
+                    isActive('/music')
+                      ? 'bg-blue-100 text-blue-700 shadow-sm'
+                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                  }`}
+                  aria-label="Música"
+                >
+                  🎵 Música
+                </Link>
+                <Link
+                  to="/info"
+                  className={`px-4 py-2.5 rounded-xl text-lg font-medium transition-all ${
+                    isActive('/info')
+                      ? 'bg-blue-100 text-blue-700 shadow-sm'
+                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                  }`}
+                  aria-label="Información útil"
+                >
+                  📚 Información
+                </Link>
+                <Link
                   to="/upload"
-                  className={`px-5 py-2.5 rounded-xl text-lg font-medium transition-all ${
+                  className={`px-4 py-2.5 rounded-xl text-lg font-medium transition-all ${
                     isActive('/upload')
                       ? 'bg-blue-100 text-blue-700 shadow-sm'
-                      : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                   }`}
                   aria-label="Subir PDF"
                 >
-                  📄 Subir PDF
+                  📄 PDF
                 </Link>
                 <Link
                   to="/history"
-                  className={`px-5 py-2.5 rounded-xl text-lg font-medium transition-all ${
+                  className={`px-4 py-2.5 rounded-xl text-lg font-medium transition-all ${
                     isActive('/history')
                       ? 'bg-blue-100 text-blue-700 shadow-sm'
-                      : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                   }`}
                   aria-label="Ver historial"
                 >
@@ -71,14 +121,14 @@ function Layout({ children, user, onLogout }) {
                 </Link>
                 <Link
                   to="/settings"
-                  className={`px-5 py-2.5 rounded-xl text-lg font-medium transition-all ${
+                  className={`px-4 py-2.5 rounded-xl text-lg font-medium transition-all ${
                     isActive('/settings')
                       ? 'bg-blue-100 text-blue-700 shadow-sm'
-                      : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                   }`}
                   aria-label="Configuración"
                 >
-                  ⚙️ Configuración
+                  ⚙️ Ajustes
                 </Link>
               </div>
             </div>
@@ -120,42 +170,78 @@ function Layout({ children, user, onLogout }) {
           </div>
 
           {/* Navegación móvil */}
-          <div className="md:hidden flex justify-around py-3 border-t border-gray-200">
+          <div className="md:hidden grid grid-cols-4 gap-1 py-3 border-t border-gray-200 bg-white/90">
             <Link
               to="/"
-              className={`flex flex-col items-center px-4 py-2 rounded-xl transition-all ${
-                isActive('/') ? 'text-blue-600 bg-blue-50' : 'text-gray-500'
+              className={`flex flex-col items-center px-2 py-2 rounded-xl transition-all ${
+                isActive('/') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'
               }`}
             >
-              <span className="text-2xl">💬</span>
-              <span className="text-sm font-medium mt-1">Chat</span>
+              <span className="text-xl">💬</span>
+              <span className="text-xs font-medium">Chat</span>
+            </Link>
+            <Link
+              to="/medication"
+              className={`flex flex-col items-center px-2 py-2 rounded-xl transition-all ${
+                isActive('/medication') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'
+              }`}
+            >
+              <span className="text-xl">💊</span>
+              <span className="text-xs font-medium">Medicina</span>
+            </Link>
+            <Link
+              to="/health"
+              className={`flex flex-col items-center px-2 py-2 rounded-xl transition-all ${
+                isActive('/health') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'
+              }`}
+            >
+              <span className="text-xl">🏥</span>
+              <span className="text-xs font-medium">Salud</span>
+            </Link>
+            <Link
+              to="/music"
+              className={`flex flex-col items-center px-2 py-2 rounded-xl transition-all ${
+                isActive('/music') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'
+              }`}
+            >
+              <span className="text-xl">🎵</span>
+              <span className="text-xs font-medium">Música</span>
+            </Link>
+            <Link
+              to="/info"
+              className={`flex flex-col items-center px-2 py-2 rounded-xl transition-all ${
+                isActive('/info') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'
+              }`}
+            >
+              <span className="text-xl">📚</span>
+              <span className="text-xs font-medium">Info</span>
             </Link>
             <Link
               to="/upload"
-              className={`flex flex-col items-center px-4 py-2 rounded-xl transition-all ${
-                isActive('/upload') ? 'text-blue-600 bg-blue-50' : 'text-gray-500'
+              className={`flex flex-col items-center px-2 py-2 rounded-xl transition-all ${
+                isActive('/upload') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'
               }`}
             >
-              <span className="text-2xl">📄</span>
-              <span className="text-sm font-medium mt-1">PDF</span>
+              <span className="text-xl">📄</span>
+              <span className="text-xs font-medium">PDF</span>
             </Link>
             <Link
               to="/history"
-              className={`flex flex-col items-center px-4 py-2 rounded-xl transition-all ${
-                isActive('/history') ? 'text-blue-600 bg-blue-50' : 'text-gray-500'
+              className={`flex flex-col items-center px-2 py-2 rounded-xl transition-all ${
+                isActive('/history') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'
               }`}
             >
-              <span className="text-2xl">📋</span>
-              <span className="text-sm font-medium mt-1">Historial</span>
+              <span className="text-xl">📋</span>
+              <span className="text-xs font-medium">Historial</span>
             </Link>
             <Link
               to="/settings"
-              className={`flex flex-col items-center px-4 py-2 rounded-xl transition-all ${
-                isActive('/settings') ? 'text-blue-600 bg-blue-50' : 'text-gray-500'
+              className={`flex flex-col items-center px-2 py-2 rounded-xl transition-all ${
+                isActive('/settings') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'
               }`}
             >
-              <span className="text-2xl">⚙️</span>
-              <span className="text-sm font-medium mt-1">Ajustes</span>
+              <span className="text-xl">⚙️</span>
+              <span className="text-xs font-medium">Ajustes</span>
             </Link>
           </div>
         </div>
@@ -200,6 +286,7 @@ function Layout({ children, user, onLogout }) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

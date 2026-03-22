@@ -1,0 +1,169 @@
+.medication-page {
+  min-height: 100vh;
+  position: relative;
+  padding: 20px;
+}
+
+.medication-page .overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+.medication-page .content {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.medication-page .header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.medication-page .icon {
+  font-size: 4rem;
+  display: block;
+}
+
+.medication-page h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #1e3a5f;
+  margin: 10px 0;
+}
+
+.medication-page p {
+  font-size: 1.2rem;
+  color: #4a5568;
+}
+
+.medication-page .add-btn {
+  width: 100%;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.medication-page .glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.medication-page .form-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #1e3a5f;
+}
+
+.medication-page .input,
+.medication-page .textarea {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 15px;
+  font-size: 1.1rem;
+}
+
+.medication-page .textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.medication-page .button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.medication-page .btn-primary,
+.medication-page .btn-secondary {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  border-radius: 15px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.medication-page .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.medication-page .btn-secondary {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.medication-page .empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+}
+
+.medication-page .empty-icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.medication-page .empty-state p {
+  font-size: 1.2rem;
+  margin: 5px 0;
+}
+
+.medication-page .reminder-card {
+  margin-bottom: 15px;
+}
+
+.medication-page .reminder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.medication-page .reminder-header h3 {
+  font-size: 1.4rem;
+  color: #1e3a5f;
+}
+
+.medication-page .delete-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.medication-page .reminder-details p {
+  font-size: 1.1rem;
+  margin: 8px 0;
+  color: #2d3748;
+}
+
+@media (max-width: 768px) {
+  .medication-page h1 {
+    font-size: 1.8rem;
+  }
+
+  .medication-page .add-btn {
+    font-size: 1.1rem;
+    padding: 15px;
+  }
+}

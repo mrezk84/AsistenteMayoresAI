@@ -1,0 +1,157 @@
+.health-page {
+  min-height: 100vh;
+  position: relative;
+  padding: 20px;
+}
+
+.health-page .overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+.health-page .content {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.health-page .header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.health-page .icon {
+  font-size: 4rem;
+  display: block;
+}
+
+.health-page h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #1e3a5f;
+  margin: 10px 0;
+}
+
+.health-page p {
+  font-size: 1.2rem;
+  color: #4a5568;
+}
+
+.health-page .tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.health-page .tip-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.health-page .tip-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.health-page .glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.health-page .tip-icon {
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.health-page .tip-card h3 {
+  font-size: 1.5rem;
+  color: #1e3a5f;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.health-page .tip-description {
+  text-align: center;
+  color: #4a5568;
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+}
+
+.health-page .tip-details {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.health-page .tip-details h4 {
+  color: #667eea;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.health-page .tip-details ul {
+  list-style: none;
+  padding: 0;
+}
+
+.health-page .tip-details li {
+  padding: 8px 0;
+  padding-left: 25px;
+  position: relative;
+  color: #2d3748;
+}
+
+.health-page .tip-details li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #48bb78;
+  font-weight: bold;
+}
+
+.health-page .tap-hint {
+  text-align: center;
+  color: #667eea;
+  font-size: 0.9rem;
+  margin-top: 15px;
+}
+
+.health-page .daily-quote {
+  text-align: center;
+  padding: 30px;
+}
+
+.health-page .quote-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.health-page .quote {
+  font-size: 1.4rem;
+  color: #1e3a5f;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.health-page .quote-author {
+  color: #667eea;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .health-page h1 {
+    font-size: 1.8rem;
+  }
+
+  .health-page .tips-grid {
+    grid-template-columns: 1fr;
+  }
+}
