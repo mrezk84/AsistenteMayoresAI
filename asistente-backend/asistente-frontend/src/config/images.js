@@ -1,7 +1,7 @@
 // Configuración de imágenes globales de la aplicación
 export const IMAGES = {
-  // Imagen de fondo principal - desde GitHub Releases
-  BACKGROUND: "https://github.com/mrezk84/AsistenteMayoresAI/releases/download/v1.0.0-assets/Gemini_Generated_Image_cp0d9kcp0d9kcp0d.png",
+  // Imagen de fondo principal - desde GitHub Releases (la que subiste)
+  BACKGROUND: "https://github.com/mrezk84/AsistenteMayoresAI/releases/download/v1.0.0-assets/IMG_7689.PNG",
 
   // Iconos y logos
   LOGO: "👋",
@@ -22,4 +22,5 @@ export const BACKGROUND_STYLES = {
   backgroundPosition: 'center',
   backgroundAttachment: 'fixed',
   backgroundRepeat: 'no-repeat',
+  backgroundColor: '#f0f4f8', // Color de fondo mientras carga la imagen
 };
