@@ -6,6 +6,7 @@ import { getUserData } from '../services/api';
 /**
  * Página principal de chat
  * Maneja la lógica de conversación y muestra la interfaz de chat
+ * Soporta temas predefinidos desde otras secciones
  */
 function ChatPage() {
   const userData = getUserData();
@@ -20,11 +21,17 @@ function ChatPage() {
   } = useChat();
 
   const [isInitialized, setIsInitialized] = useState(false);
+  const [autoSend, setAutoSend] = useState(null);
 
-  // Cargar conversación actual desde localStorage si existe
+  // Cargar conversación actual y verificar si hay tema pendiente
   useEffect(() => {
     const savedConversationId = localStorage.getItem('asistente_current_conversation');
+    const chatTopic = sessionStorage.getItem('chatTopic');
     const init = async () => {
+      if (chatTopic) {
+        setAutoSend(chatTopic);
+        sessionStorage.removeItem('chatTopic');
+      }
       if (savedConversationId) {
         await loadConversation(parseInt(savedConversationId));
       }
@@ -32,6 +39,14 @@ function ChatPage() {
     };
     init();
   }, [loadConversation]);
+
+  // Enviar mensaje automático cuando se carga la conversación
+  useEffect(() => {
+    if (currentConversation && autoSend && isInitialized) {
+      handleSendMessage(autoSend);
+      setAutoSend(null);
+    }
+  }, [currentConversation, autoSend, isInitialized]);
 
   // Crear nueva conversación si no hay una activa (solo después de intentar cargar)
   useEffect(() => {

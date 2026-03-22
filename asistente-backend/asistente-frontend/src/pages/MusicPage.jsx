@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BACKGROUND_STYLES } from '../config/images';
 import './MusicPage.css';
 
@@ -69,10 +70,16 @@ export default function MusicPage() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [currentSong, setCurrentSong] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const navigate = useNavigate();
 
   const playSong = (song) => {
     setCurrentSong(song);
     setIsPlaying(true);
+  };
+
+  const goToChat = (topic) => {
+    sessionStorage.setItem('chatTopic', topic);
+    navigate('/');
   };
 
   return (
@@ -84,6 +91,10 @@ export default function MusicPage() {
           <h1>Música para el Alma</h1>
           <p>Disfruta de buena música</p>
         </div>
+
+        <button onClick={() => goToChat('¿Qué música me recomiendas para relajarme?')} className="chat-fab">
+          💬
+        </button>
 
         {!selectedCategory ? (
           <div className="categories">

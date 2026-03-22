@@ -146,6 +146,61 @@
   font-weight: bold;
 }
 
+.health-page .chat-tip {
+  text-align: center;
+  padding: 20px;
+  margin-bottom: 30px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border: 2px solid #667eea;
+}
+
+.health-page .chat-tip .tip-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.health-page .chat-tip p {
+  color: #1e3a5f;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.health-page .chat-btn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.health-page .floating-chat-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 20px 30px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5);
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+.health-page .floating-chat-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.7);
+}
+
 @media (max-width: 768px) {
   .health-page h1 {
     font-size: 1.8rem;
@@ -153,5 +208,12 @@
 
   .health-page .tips-grid {
     grid-template-columns: 1fr;
+  }
+
+  .health-page .floating-chat-btn {
+    bottom: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    font-size: 1.1rem;
   }
 }
